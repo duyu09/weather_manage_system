@@ -15,6 +15,12 @@
   
 ### 界面效果：
 
+<img src="https://github.com/duyu09/weather_manage_system/assets/92843163/1b0a7e4f-9607-42ad-84b9-095908598701" style="width:60%;"></img>
+
+<img src="https://github.com/duyu09/weather_manage_system/assets/92843163/502c27fe-23ee-408b-99de-b030ce723bc0" style="width:60%;"></img>
+
+<img src="https://github.com/duyu09/weather_manage_system/assets/92843163/3f4797cf-6ab6-40c0-9c5d-dc2438543219" style="width:60%;"></img>
+
 
 ### 项目作者：
 
