@@ -1,0 +1,165 @@
+<!--
+    软工(开发)21-1班杜宇 实训作业：天气预报系统前端登录页面
+    Copyright (c) 2022~2024 DuYu (202103180009@stu.qlu.edu.cn), Faculty of Computer Science & Technology, Qilu University of Technology(SDAS).
+-->
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登录系统</title>
+    <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="./jquery-3.6.3.js"></script>
+    <script src="./jquery.base64.js"></script>
+    <script src="./vue.js"></script>
+    <link rel="stylesheet" href="./elementUI/index.css">
+    <script src="./elementUI/index.js"></script>
+    <script src="js-cookie.js"></script>
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      .b-example-divider {
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+      }
+
+      .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+      }
+
+      .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+      }
+
+      .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+      }
+
+      .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
+
+
+    <!-- Custom styles for this template -->
+    <link href="sign-in.css" rel="stylesheet">
+</head>
+<body class="text-center">
+<script>
+    function warnings(str)
+    {
+        new Vue().$alert(str, '系统提示',
+            {
+                    confirmButtonText: '确定',
+                    callback: action => { return;}
+            });
+            return;
+    }
+    $(document).on('click','#submitSystem',function ()
+    {
+        const idnum=$("#idnum").val();
+        const password=$("#password_enc").val();
+        if(idnum==='')
+        {
+            warnings("请输入电话号码（您的账号）");
+            return;
+        }
+        if(password==='')
+        {
+            warnings("请输入密码");
+            return;
+        }
+        const password_enc=password;
+
+        $.ajax({
+        url:'http://127.0.0.1:8080/user/login',
+        type:'POST',
+        cache:false,
+        crossDomain: true,
+        contentType:'application/json',
+        data: JSON.stringify({
+                'phoneNum':idnum,
+                'password':password,
+            }),
+        dataType: "json",
+        success:function (data)
+        {
+            if(data.status!==0)
+            {
+                warnings(data.message);
+                return;
+            }
+            else
+            {
+                console.log(data);
+                const pathofCookies='/';
+                // $.cookie('phoneNum', data.phoneNum, {expires:1,path:pathofCookies});
+                Cookies.set('phoneNum', idnum);
+                window.location="./weather.html"
+                return;
+            }
+        },
+        error:function (data)
+        {
+            warnings('出现了异常，请检查网络连接。');
+            return;
+        }
+        });
+
+    })
+</script>
+
+<main class="form-signin w-100 m-auto">
+    <img class="mb-4" src="logo.jpg" alt="" width="80px" height="80px" style="border-radius: 20px;">
+    <h1 class="h3 mb-3 fw-normal">登录</h1>
+    <h5 class="h5 mb-3 fw-normal">天气信息查看系统</h5>
+
+    <div class="form-floating">
+      <input type="text" class="form-control" id="idnum" placeholder="">
+      <label for="idnum">您的电话号码</label>
+    </div>
+    <div class="form-floating" style="margin-top: 3px;">
+      <input type="password" class="form-control" id="password_enc" placeholder="">
+      <label for="password_enc">输入密码</label>
+    </div>
+
+    <div>
+      <h6 class="h6 mb-3 fw-normal"><a href="./register.html">注册账号</a></h6>
+    </div>
+    <button class="w-100 btn btn-lg btn-primary" id="submitSystem">登录系统</button>
+    <p class="mt-5 mb-3 text-muted" style="font-size: smaller;">
+        &copy; 2022~2024 Duyu09, <br><nobr>Faculty of Computer Science & Technology,</nobr><br>
+        <nobr>Qilu University of Technology (SDAS).</nobr>
+    </p>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>天气查看</title>
+    <link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./carousel.css">
+    <script src="./jquery-3.6.3.js"></script>
+    <script src="./jquery.base64.js"></script>
+    <script src="./vue.js"></script>
+    <script src="js-cookie.js"></script>
+    <script src="vue-resource.js"></script>
+
+</head>
+<body>
+<style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+
+    .b-example-divider {
+        height: 3rem;
+        background-color: rgba(0, 0, 0, .1);
+        border: solid rgba(0, 0, 0, .15);
+        border-width: 1px 0;
+        box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em rgba(0, 0, 0, .15);
+    }
+
+    .b-example-vr {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
+    }
+
+    .bi {
+        vertical-align: -.125em;
+        fill: currentColor;
+    }
+
+    .nav-scroller {
+        position: relative;
+        z-index: 2;
+        height: 2.75rem;
+        overflow-y: hidden;
+    }
+
+    .nav-scroller .nav {
+        display: flex;
+        flex-wrap: nowrap;
+        padding-bottom: 1rem;
+        margin-top: -1px;
+        overflow-x: auto;
+        text-align: center;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Duyu09's 天气查询系统</a>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="./login.html">主页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./register.html">注册</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="./login.html">退出登录</a>
+                    </li>
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="#">修改密码</a>-->
+<!--                    </li>-->
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div id="root-div">
+    <div id="div-01">
+        <div id="div-02">
+            <div id="vue-root">
+                <div id="div-03">
+                    <span>手机号为 <b style="color: #0f5132">{{ phoneNum }}</b> 的用户，您好！</span>
+                </div>
+                <div id="div-04">
+                    <div id="div-05">
+                        <label for="input-01" class="form-label">请输入城市码：</label>
+                        <input type="text" class="form-control" id="input-01" v-model="current_code">
+                    </div>
+                    <div id="div-06">
+                        <button type="button" class="btn btn-primary" @click="addWeather()">添加城市天气</button>&nbsp;&nbsp;
+                        <button type="button" class="btn btn-success" @click="updatePassword()">修改密码</button>
+                    </div>
+                </div>
+                <div id="div-07">
+                    <div id="div-08">
+                        <table class="table table-striped" style="margin: 0 auto; width: 92.5%;font-size: smaller;">
+                            <thead><tr>
+                                <th>ID</th><th>City</th><th>Date</th><th>Temperature</th><th>Weathers</th><th>Notice</th><th>Action</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr v-for="(item, index) in weatherArr" :key="index">
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.city }}</td>
+                                <td>{{ item.weatherTime }}</td>
+                                <td>{{ item.temperature }}</td>
+                                <td>{{ item.weathers }}</td>
+                                <td>{{ item.notice }}</td>
+                                <td>
+                                    <a @click="deleteWeather(item.id)" class="del-btn">删除此项</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="passwordModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>修改密码</h2>
+                        <label for="oldPassword">旧密码:</label>
+                        <input type="password" id="oldPassword" required><br><br>
+                        <label for="newPassword">新密码:</label>
+                        <input type="password" id="newPassword" required><br><br>
+                        <button id="confirmBtn">确定</button><br>
+                        <button id="cancelBtn">取消</button>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+<script>
+    var vm = new Vue({
+        el: '#vue-root',
+        data: {
+            current_code: "",
+            phoneNum: 123,
+            weatherArr: [],
+        },
+        methods: {
+            update() {
+                vm.$http.post('http://127.0.0.1:8080/weather/getWeathersList', {})
+                    .then(response => {
+                        vm.weatherArr = response.body.weathersArray;
+                        console.log(response.body);
+                    }, error => {
+                        console.error(error);
+                    });
+            },
+            addWeather(){
+                vm.$http.post('http://127.0.0.1:8080/weather/addWeather', { "code": this.current_code })
+                    .then(response => {
+                        this.update();
+                    }, error => {
+                        console.error(error);
+                    });
+            },
+            deleteWeather(id){
+                vm.$http.post('http://127.0.0.1:8080/weather/deleteWeather', { "code": id })
+                    .then(response => {
+                        this.update();
+                    }, error => {
+                        console.error(error);
+                    });
+            },
+            updatePassword(){
+                // 获取模态框及相关元素
+                var modal = document.getElementById('passwordModal');
+                var confirmBtn = document.getElementById('confirmBtn');
+                var cancelBtn = document.getElementById('cancelBtn');
+                var closeBtn = document.getElementsByClassName('close')[0];
+                var oldPasswordInput = document.getElementById('oldPassword');
+                var newPasswordInput = document.getElementById('newPassword');
+                // 打开模态框
+                function openModal() {
+                    modal.style.display = 'block';
+                }
+
+                // 关闭模态框
+                function closeModal() {
+                    modal.style.display = 'none';
+                }
+                // 点击确认按钮事件
+                confirmBtn.addEventListener('click', function() {
+                    var oldPassword = oldPasswordInput.value;
+                    var newPassword = newPasswordInput.value;
+
+                    vm.$http.post('http://127.0.0.1:8080/user/updatePassword', { "phoneNum": vm.phoneNum, "oldPassword": oldPassword, "newPassword": newPassword })
+                        .then(response => {
+                            alert("已执行修改密码。");
+                        }, error => {
+                            alert(error);
+                        });
+
+                    // 处理完请求后，关闭模态框
+                    closeModal();
+                });
+                // 点击取消按钮事件
+                cancelBtn.addEventListener('click', function() {
+                    closeModal();
+                });
+                // 点击模态框上的关闭按钮事件
+                closeBtn.addEventListener('click', function() {
+                    closeModal();
+                });
+                // 点击模态框外部（即灰色背景部分）事件
+                window.addEventListener('click', function(event) {
+                    if (event.target == modal) {
+                        closeModal();
+                    }
+                });
+
+                openModal()
+
+            }
+
+        }
+    })
+    let phoneNum = Cookies.get('phoneNum');
+    vm.phoneNum = phoneNum;
+    vm.$http.post('http://127.0.0.1:8080/weather/getWeathersList', {})
+        .then(response => {
+            vm.weatherArr = response.body.weathersArray;
+            console.log(response.body);
+        }, error => {
+            console.error(error);
+        });
+
+</script>
+<style>
+    #root-div{
+        height: 99.9vh;
+    }
+    #div-01{
+        position: absolute;
+        bottom: 0;
+        height: calc(99.85vh - 6rem);
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    #div-02{
+        height: 100%;
+        width: 92.5%;
+        background-color: rgb(245, 245, 245);
+        border-top-right-radius: 25px;
+        border-top-left-radius: 25px;
+    }
+    #vue-root{
+
+
+    }
+    #div-03 {
+        margin-top: 2rem;
+        width: 100%;
+        text-align: center;
+        font-size: larger;
+    }
+    #div-04{
+        display: flex;
+        width: 50%;
+        margin-left: 20%;
+        margin-top: 1.5rem;
+    }
+    #div-05{
+        flex: 1;
+    }
+    #div-06{
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+    #div-07{
+        display: flex;
+        margin-top: 1rem;
+        align-content: center;
+        flex-wrap: wrap;
+    }
+    #div-08{
+        flex: 1;
+    }
+    #input-01{
+        width: 92.5%;
+    }
+    .del-btn:hover{
+        cursor: pointer;
+        color: #0a53be;
+    }
+
+
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 40%;
+        max-width: 400px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+
+    .close {
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+</style>
+</html>
