@@ -29,3 +29,10 @@
 ### 开源地址：
 
 - https://github.com/duyu09/weather_manage_system
+
+<div>
+<div><b>Number of Total Visits (All of Duyu09's GitHub Projects): </b><br><img src="https://profile-counter.glitch.me/duyu09/count.svg" /></div> 
+<br>
+<!-- <div>Number of Total Followers: &nbsp; <img src="https://img.shields.io/github/followers/duyu09?label=Follow&style=social" /></div>  --> 
+<div><b>Number of Total Visits (Duyu09's Weather Management System): </b><br><img src="https://profile-counter.glitch.me/duyu09-Weather-Management-System/count.svg" /></div> 
+</div>
